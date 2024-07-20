@@ -8,7 +8,7 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Instala las dependencias
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copia el contenido de la aplicación en el directorio de trabajo
 COPY . .
@@ -16,5 +16,5 @@ COPY . .
 # Expone el puerto en el que la aplicación se ejecutará
 EXPOSE 5000
 
-# Comando para ejecutar la aplicación con Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "server:app"]
+# Comando para ejecutar la aplicación
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "server:app"]

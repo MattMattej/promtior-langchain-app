@@ -6,3 +6,5 @@ langchain==0.1.17
 langchain_openai==0.1.17
 langchain_community==0.1.17
 python-dotenv==0.19.2
+faiss-cpu==1.7.2
+tiktoken==0.1.2
