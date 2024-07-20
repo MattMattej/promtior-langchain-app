@@ -1,7 +1,7 @@
 import os
 import requests
 from bs4 import BeautifulSoup
-from langchain.chains import SimpleChain
+from langchain.chains import LLMChain  # Cambia esta importación
 from langchain_openai import OpenAI, OpenAIEmbeddings
 from langchain.prompts import PromptTemplate
 from langchain.docstore.document import Document
@@ -19,8 +19,8 @@ llm = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 template = PromptTemplate(input_variables=["question", "context"], 
                           template="Pregunta: {question}\nContexto: {context}\nRespuesta:")
 
-# Crear la cadena de LLM usando SimpleChain
-chain = SimpleChain(llm=llm, prompt=template)
+# Crear la cadena de LLM usando LLMChain
+chain = LLMChain(llm=llm, prompt=template)
 
 # Documentos manuales
 manual_documents = [
