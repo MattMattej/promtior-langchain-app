@@ -3,8 +3,5 @@ gunicorn
 requests
 beautifulsoup4
 langchain
-langchain_openai
-langchain_community
+openai
 python-dotenv
-faiss-cpu
-tiktoken
