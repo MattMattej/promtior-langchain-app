@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+    <div id="chat-container">
+        <div id="messages"></div>
+        <div style="display: flex; width: 70%; max-width: 600px; justify-content: space-between;">
+            <input type="text" id="input" placeholder="Escribe tu mensaje..." onkeydown="if (event.key === 'Enter') sendMessage()">
+            <button id="send-button" onclick="sendMessage()">Enviar</button>
+        </div>
+    </div>
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById('input');
+            const message = input.value;
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
+            const data = await response.json();
+            const messages = document.getElementById('messages');
+            messages.innerHTML += `<div class="userMessage">${message}</div>`;
+            messages.innerHTML += `<div class="botMessage">${data.reply}</div>`;
+            input.value = '';
+        }
+    </script>
+</body>
+</html>
