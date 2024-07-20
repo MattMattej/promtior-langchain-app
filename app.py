@@ -1,7 +1,7 @@
 import os
 import requests
 from bs4 import BeautifulSoup
-from langchain.chains import LLMChain
+from langchain.chains import RunnableSequence
 from langchain_openai import OpenAI, OpenAIEmbeddings
 from langchain.prompts import PromptTemplate
 from langchain.docstore.document import Document
@@ -19,8 +19,8 @@ llm = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 template = PromptTemplate(input_variables=["question", "context"], 
                           template="Pregunta: {question}\nContexto: {context}\nRespuesta:")
 
-# Crear la cadena de LLM usando LLMChain
-chain = LLMChain(llm=llm, prompt=template)
+# Crear la cadena de LLM usando RunnableSequence
+chain = template | llm
 
 # Documentos manuales
 manual_documents = [
@@ -74,7 +74,7 @@ def get_response(question):
     context = "\n\n".join([f"{doc.page_content} (Fuente: {doc.metadata['source']})" for doc in context_docs])
     
     # Generar la respuesta usando la cadena de LLM
-    response = chain.run({"question": question, "context": context})
+    response = chain.invoke({"question": question, "context": context})
     return response
 
 if __name__ == "__main__":
