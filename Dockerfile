@@ -1,4 +1,4 @@
-# Usa una imagen base de Python
+# Usa una imagen base de Python slim para reducir el uso de memoria
 FROM python:3.9-slim
 
 # Establece el directorio de trabajo en /app
@@ -16,5 +16,5 @@ COPY . .
 # Expone el puerto en el que la aplicación se ejecutará
 EXPOSE 5000
 
-# Comando para ejecutar la aplicación
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "server:app"]
+# Comando para ejecutar la aplicación usando gunicorn con menor número de workers
+CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:5000", "server:app"]
