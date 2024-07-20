@@ -16,5 +16,5 @@ COPY . .
 # Expone el puerto en el que la aplicación se ejecutará
 EXPOSE 5000
 
-# Comando para ejecutar la aplicación
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "server:app"]
+# Comando para ejecutar la aplicación con Gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "server:app"]
