@@ -25,8 +25,8 @@ chain = LLMChain(llm=llm, prompt=template)
 
 # Documentos manuales
 manual_documents = [
-    Document(page_content="Promtior is an epic AI gen consultant", metadata={"source": "manual"}),
-    Document(page_content="Promtior was founded in 2021.", metadata={"source": "manual"})
+    Document(page_content="Promtior was founded in 2023", metadata={"source": "manual"}),
+    Document(page_content="Promtior boost operational efficiency in businesses with customized GenAI solutions, from discovery and development to implementation.", metadata={"source": "manual"})
 ]
 
 # Scraping de la web y creación de documentos automatizados
