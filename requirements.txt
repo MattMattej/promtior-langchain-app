@@ -1,8 +1,12 @@
-Flask
+flask
 gunicorn
 requests
 beautifulsoup4
 langchain
+langchain-openai
+langchain-community
 openai
 python-dotenv
+werkzeug
+tiktoken
 faiss-cpu

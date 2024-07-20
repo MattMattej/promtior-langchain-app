@@ -1,8 +1,9 @@
 import os
 import requests
 from bs4 import BeautifulSoup
-from langchain.chains import LLMChain  # Cambia esta importación
-from langchain_openai import OpenAI, OpenAIEmbeddings
+from langchain.chains import LLMChain
+from langchain_community.llms import OpenAI
+from langchain_community.embeddings import OpenAIEmbeddings
 from langchain.prompts import PromptTemplate
 from langchain.docstore.document import Document
 from langchain_community.vectorstores import FAISS
