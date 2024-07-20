@@ -20,7 +20,7 @@ template = PromptTemplate(input_variables=["question", "context"],
                           template="Pregunta: {question}\nContexto: {context}\nRespuesta:")
 
 # Crear la secuencia runnable usando RunnableSequence
-sequence = RunnableSequence([template, llm])
+chain = RunnableSequence(prompt=template, llm=llm)
 
 # Documentos manuales
 manual_documents = [
@@ -74,7 +74,7 @@ def get_response(question):
     context = "\n\n".join([f"{doc.page_content} (Fuente: {doc.metadata['source']})" for doc in context_docs])
     
     # Generar la respuesta usando la secuencia runnable
-    response = sequence.invoke({"question": question, "context": context})
+    response = chain.invoke({"question": question, "context": context})
     return response
 
 if __name__ == "__main__":
