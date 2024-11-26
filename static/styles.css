@@ -5,32 +5,69 @@ body {
     font-family: "Arial", sans-serif;
     margin: 0;
     padding: 0;
+    display: flex;
+    height: 100vh;
+    overflow: hidden; /* Evitar scroll global */
 }
 
-/* Contenedor principal del chat */
+/* Contenedor principal */
 #chat-container {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
+    flex-direction: row; /* Dividir en dos columnas */
     width: 100%;
+    height: 100%;
+}
+
+/* Columna izquierda para carga de archivos */
+#upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centrar horizontalmente */
+    justify-content: center; /* Centrar verticalmente */
+    width: 25%;
+    background-color: #f9f9f9; /* Fondo gris claro */
     padding: 20px;
+    border-right: 1px solid #dddddd;
     box-sizing: border-box;
 }
 
-/* Contenedor de mensajes */
-#messages {
-    width: 80%;
-    max-width: 800px;
-    background-color: #f7f7f7; /* Fondo gris claro */
+#upload-container input {
+    margin-bottom: 15px;
+    width: 90%;
+    max-width: 200px;
+}
+
+#upload-button {
+    width: 90%;
+    max-width: 200px;
+}
+
+/* Columna derecha para el chat */
+#chat-content {
+    display: flex;
+    flex-direction: column;
+    width: 75%;
+    height: 100%;
+    box-sizing: border-box;
     padding: 20px;
-    border-radius: 10px;
-    overflow-y: auto;
-    margin-bottom: 20px;
+    overflow: hidden; /* Evitar scroll externo */
+}
+
+/* Historial del chat */
+#messages {
+    flex-grow: 1; /* Ocupar todo el espacio disponible */
+    background-color: #f7f7f7; /* Fondo gris claro */
     border: 1px solid #dddddd;
+    border-radius: 10px;
+    padding: 20px;
+    overflow-y: auto; /* Permitir scroll interno */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    font-size: 16px;
+    margin-bottom: 20px;
+    scrollbar-width: none; /* Ocultar scroll (Firefox) */
+}
+
+#messages::-webkit-scrollbar {
+    display: none; /* Ocultar scroll (Chrome, Edge, Safari) */
 }
 
 /* Burbujas de mensajes del usuario */
@@ -59,18 +96,20 @@ body {
     font-size: 15px;
 }
 
-/* Controles */
+/* Controles (input + botón) */
 #controls {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 15px;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto; /* Centrar controles horizontalmente */
+    box-sizing: border-box;
 }
 
 /* Campo de entrada */
 #input {
-    width: 80%;
-    max-width: 600px;
+    flex-grow: 1;
     padding: 15px;
     border: 1px solid #cccccc;
     border-radius: 5px;
@@ -79,10 +118,12 @@ body {
     outline: none;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
     font-size: 16px;
+    margin-left: 15px;
+    margin-right: 15px; /* Separación con el botón */
 }
 
-/* Botones */
-#upload-button, #send-button {
+/* Botón de enviar y botón de cargar PDF */
+button {
     padding: 12px 20px;
     background-color: #4a90e2; /* Azul elegante */
     color: #ffffff; /* Texto blanco */
@@ -94,14 +135,12 @@ body {
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Botón: hover */
-#upload-button:hover, #send-button:hover {
+button:hover {
     background-color: #357abd; /* Azul más oscuro */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-/* Botón: active */
-#upload-button:active, #send-button:active {
+button:active {
     background-color: #2c6191; /* Azul aún más oscuro */
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
