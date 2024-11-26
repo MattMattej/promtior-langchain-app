@@ -8,6 +8,7 @@ from langchain.prompts import PromptTemplate
 from langchain_community.vectorstores import FAISS
 from langchain_community.document_loaders import PyPDFLoader
 from dotenv import load_dotenv
+from tempfile import NamedTemporaryFile  # Para manejo de archivos temporales
 
 # Cargar variables de entorno
 load_dotenv()
@@ -26,15 +27,10 @@ chain = RunnableSequence(template | llm)
 
 # Crear el índice vectorial vacío
 embeddings = OpenAIEmbeddings()
-vector_store = None
-LOCAL_STORAGE = "data.json"  # Archivo para guardar contenido procesado localmente
+vector_store = None  # Se inicializa vacío
 
 # Inicializar la app Flask
 app = Flask(__name__)
-app.config["UPLOAD_FOLDER"] = "uploads"
-
-if not os.path.exists(app.config["UPLOAD_FOLDER"]):
-    os.makedirs(app.config["UPLOAD_FOLDER"])
 
 @app.route('/')
 def index():
@@ -47,22 +43,19 @@ def upload_pdf():
     global vector_store
     file = request.files['file']
     if file and file.filename.endswith('.pdf'):
-        filepath = os.path.join(app.config["UPLOAD_FOLDER"], secure_filename(file.filename))
-        file.save(filepath)
-        
-        # Cargar el PDF y procesarlo en documentos
-        loader = PyPDFLoader(filepath)
-        documents = loader.load()
-        
-        # Guardar documentos localmente
-        with open(LOCAL_STORAGE, "w") as f:
-            json.dump([doc.page_content for doc in documents], f)
-        
-        # Crear índice vectorial
-        vector_store = FAISS.from_documents(documents, embeddings)
+        # Guardar archivo temporalmente
+        with NamedTemporaryFile(delete=True, suffix=".pdf") as temp_file:
+            file.save(temp_file.name)
 
-        print("PDF cargado y procesado con éxito.")  # Console log
-        return jsonify({"message": "PDF cargado y procesado con éxito"})
+            # Procesar el archivo con PyPDFLoader
+            loader = PyPDFLoader(temp_file.name)
+            documents = loader.load()
+
+            # Crear índice vectorial
+            vector_store = FAISS.from_documents(documents, embeddings)
+
+            print("PDF cargado y procesado con éxito.")  # Console log
+            return jsonify({"message": "PDF cargado y procesado con éxito"})
     else:
         return jsonify({"error": "Por favor sube un archivo PDF válido"}), 400
 
