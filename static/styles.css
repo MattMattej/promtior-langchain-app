@@ -1,9 +1,13 @@
+/* General */
 body {
-    background-color: #121212;
-    color: #ffffff;
-    font-family: Arial, sans-serif;
+    background-color: #ffffff; /* Fondo blanco */
+    color: #333333; /* Texto gris oscuro */
+    font-family: "Arial", sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
+/* Contenedor principal del chat */
 #chat-container {
     display: flex;
     flex-direction: column;
@@ -11,44 +15,51 @@ body {
     justify-content: center;
     height: 100vh;
     width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
+/* Contenedor de mensajes */
 #messages {
     width: 80%;
     max-width: 800px;
-    background-color: #1e1e1e;
-    padding: 30px;
-    border-radius: 15px;
+    background-color: #f7f7f7; /* Fondo gris claro */
+    padding: 20px;
+    border-radius: 10px;
     overflow-y: auto;
     margin-bottom: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-    font-size: 18px;
+    border: 1px solid #dddddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-size: 16px;
 }
 
+/* Burbujas de mensajes del usuario */
 .userMessage {
     text-align: right;
-    background-color: #bb86fc;
-    color: #121212;
-    padding: 15px;
+    background-color: #e0e0e0; /* Gris claro */
+    color: #333333; /* Texto gris oscuro */
+    padding: 10px;
     margin: 10px;
-    border-radius: 20px;
+    border-radius: 10px;
     align-self: flex-end;
-    max-width: 80%;
-    font-size: 16px;
+    max-width: 75%;
+    font-size: 15px;
 }
 
+/* Burbujas de mensajes del bot */
 .botMessage {
     text-align: left;
-    background-color: #03dac6;
-    color: #121212;
-    padding: 15px;
+    background-color: #d6d6d6; /* Gris un poco más oscuro */
+    color: #333333; /* Texto gris oscuro */
+    padding: 10px;
     margin: 10px;
-    border-radius: 20px;
+    border-radius: 10px;
     align-self: flex-start;
-    max-width: 80%;
-    font-size: 16px;
+    max-width: 75%;
+    font-size: 15px;
 }
 
+/* Controles */
 #controls {
     display: flex;
     flex-direction: column;
@@ -56,34 +67,41 @@ body {
     gap: 15px;
 }
 
+/* Campo de entrada */
 #input {
     width: 80%;
     max-width: 600px;
     padding: 15px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    background-color: #1e1e1e;
-    color: #ffffff;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    background-color: #ffffff; /* Fondo blanco */
+    color: #333333; /* Texto gris oscuro */
     outline: none;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    font-size: 16px;
 }
 
+/* Botones */
 #upload-button, #send-button {
-    padding: 15px 20px;
-    background-color: #6200ea;
-    color: #ffffff;
+    padding: 12px 20px;
+    background-color: #4a90e2; /* Azul elegante */
+    color: #ffffff; /* Texto blanco */
     border: none;
-    border-radius: 10px;
+    border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Botón: hover */
 #upload-button:hover, #send-button:hover {
-    background-color: #3700b3;
+    background-color: #357abd; /* Azul más oscuro */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
+/* Botón: active */
 #upload-button:active, #send-button:active {
-    background-color: #03dac5;
+    background-color: #2c6191; /* Azul aún más oscuro */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }

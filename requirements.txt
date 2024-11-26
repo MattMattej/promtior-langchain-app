@@ -11,3 +11,4 @@ werkzeug
 tiktoken
 faiss-cpu
 PyPDF2
+pypdf
