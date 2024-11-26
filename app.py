@@ -1,14 +1,13 @@
 import os
-import requests
-from bs4 import BeautifulSoup
-from langchain.chains import LLMChain
-from langchain_community.llms import OpenAI
-from langchain_community.embeddings import OpenAIEmbeddings
+import json
+from flask import Flask, request, jsonify, render_template
+from werkzeug.utils import secure_filename
+from langchain.schema.runnable import RunnableSequence
+from langchain_openai import OpenAI, OpenAIEmbeddings
 from langchain.prompts import PromptTemplate
-from langchain.docstore.document import Document
 from langchain_community.vectorstores import FAISS
+from langchain_community.document_loaders import PyPDFLoader
 from dotenv import load_dotenv
-import re
 
 # Cargar variables de entorno
 load_dotenv()
@@ -17,67 +16,75 @@ load_dotenv()
 llm = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 # Configuración del template del prompt
-template = PromptTemplate(input_variables=["question", "context"], 
-                          template="Pregunta: {question}\nContexto: {context}\nRespuesta:")
+template = PromptTemplate(
+    input_variables=["question", "context"],
+    template="Pregunta: {question}\nContexto: {context}\nRespuesta:"
+)
 
-# Crear la cadena de LLM usando LLMChain
-chain = LLMChain(llm=llm, prompt=template)
+# Crear la cadena de procesamiento usando RunnableSequence
+chain = RunnableSequence(template | llm)
 
-# Documentos manuales
-manual_documents = [
-    Document(page_content="Promtior was founded in 2023", metadata={"source": "manual"}),
-    Document(page_content="Promtior boost operational efficiency in businesses with customized GenAI solutions, from discovery and development to implementation.", metadata={"source": "manual"})
-]
-
-# Scraping de la web y creación de documentos automatizados
-def scrape_promtior():
-    urls = [
-        "https://promtior.ai/",
-        "https://www.promtior.ai/"
-    ]
-    content = []
-    for url in urls:
-        response = requests.get(url)
-        soup = BeautifulSoup(response.content, "html.parser")
-        
-        # Excluir elementos de navegación y otros no relevantes
-        for nav in soup.find_all(['nav', 'header', 'footer', 'script', 'style']):
-            nav.decompose()
-        
-        # Extraer contenido relevante
-        for p in soup.find_all(['p', 'div', 'article', 'section']):
-            text = p.get_text(strip=True)
-            if text and len(text.split()) > 5:  # Filtrar texto corto y menos relevante
-                content.append(text)
-    
-    full_content = " ".join(content)
-    full_content = re.sub(r'\s+', ' ', full_content)  # Eliminar espacios redundantes
-    return full_content
-
-scraped_content = scrape_promtior()
-
-# Crear documentos con el contenido scrapeado
-scraped_documents = []
-for paragraph in scraped_content.split(". "):
-    if paragraph.strip() and len(paragraph.split()) > 10:  # Filtrar párrafos muy cortos
-        scraped_documents.append(Document(page_content=paragraph.strip(), metadata={"source": "https://promtior.ai"}))
-
-# Combinar documentos manuales y scrapeados
-all_documents = manual_documents + scraped_documents
-
-# Crear el índice vectorial de documentos usando FAISS
+# Crear el índice vectorial vacío
 embeddings = OpenAIEmbeddings()
-vector_store = FAISS.from_documents(all_documents, embeddings)
+vector_store = None
+LOCAL_STORAGE = "data.json"  # Archivo para guardar contenido procesado localmente
 
-def get_response(question):
+# Inicializar la app Flask
+app = Flask(__name__)
+app.config["UPLOAD_FOLDER"] = "uploads"
+
+if not os.path.exists(app.config["UPLOAD_FOLDER"]):
+    os.makedirs(app.config["UPLOAD_FOLDER"])
+
+@app.route('/')
+def index():
+    """Ruta principal para servir el archivo HTML"""
+    return render_template('chat.html')
+
+@app.route('/api/upload', methods=['POST'])
+def upload_pdf():
+    """Ruta para cargar y procesar un archivo PDF"""
+    global vector_store
+    file = request.files['file']
+    if file and file.filename.endswith('.pdf'):
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"], secure_filename(file.filename))
+        file.save(filepath)
+        
+        # Cargar el PDF y procesarlo en documentos
+        loader = PyPDFLoader(filepath)
+        documents = loader.load()
+        
+        # Guardar documentos localmente
+        with open(LOCAL_STORAGE, "w") as f:
+            json.dump([doc.page_content for doc in documents], f)
+        
+        # Crear índice vectorial
+        vector_store = FAISS.from_documents(documents, embeddings)
+
+        print("PDF cargado y procesado con éxito.")  # Console log
+        return jsonify({"message": "PDF cargado y procesado con éxito"})
+    else:
+        return jsonify({"error": "Por favor sube un archivo PDF válido"}), 400
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    """Ruta para manejar las preguntas del usuario"""
+    global vector_store
+    if vector_store is None:
+        return jsonify({"error": "Primero sube un PDF para poder realizar preguntas"}), 400
+    
+    data = request.get_json()
+    question = data.get('message', '')
+    
     # Recuperar documentos relevantes
     context_docs = vector_store.similarity_search(question, k=2)
-    context = "\n\n".join([f"{doc.page_content} (Fuente: {doc.metadata['source']})" for doc in context_docs])
+    context = "\n\n".join([f"{doc.page_content} (Fuente: {doc.metadata.get('source', 'PDF')})" for doc in context_docs])
     
-    # Generar la respuesta usando la cadena de LLM
-    response = chain.run({"question": question, "context": context})
-    return response
+    # Generar la respuesta usando la cadena de procesamiento
+    response = chain.invoke({"question": question, "context": context})
+    print("Pregunta procesada con éxito.")  # Console log
+    return jsonify({"reply": response})
 
 if __name__ == "__main__":
-    question = input("Haz una pregunta: ")
-    print(get_response(question))
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
