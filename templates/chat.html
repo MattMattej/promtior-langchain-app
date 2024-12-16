@@ -12,7 +12,6 @@
         <div id="upload-container">
             <input type="file" id="pdfInput" accept=".pdf">
             <button id="upload-button" onclick="uploadPDF()">Cargar PDF</button>
-            <div id="upload-spinner" class="spinner" style="display: none;"></div>
         </div>
 
         <!-- Columna derecha: chat -->
@@ -21,7 +20,6 @@
             <div id="controls">
                 <button id="send-button" onclick="sendMessage()">Enviar</button>
                 <input type="text" id="input" placeholder="Escribe tu mensaje..." onkeydown="if (event.key === 'Enter') sendMessage()">
-                <div id="send-spinner" class="spinner" style="display: none;"></div>
             </div>
         </div>
     </div>
@@ -29,13 +27,15 @@
         async function sendMessage() {
             const input = document.getElementById('input');
             const sendButton = document.getElementById('send-button');
-            const sendSpinner = document.getElementById('send-spinner');
-            const message = input.value;
+            const message = input.value.trim();
 
-            // Mostrar el spinner y reemplazar el texto del botón
+            if (!message) {
+                alert("Por favor, ingrese un mensaje válido.");
+                return;
+            }
+
             sendButton.disabled = true;
-            sendButton.innerHTML = "";  // Vaciar texto del botón
-            sendSpinner.style.display = "inline-block";
+            sendButton.textContent = "Cargando...";
 
             try {
                 const response = await fetch('/api/chat', {
@@ -50,10 +50,8 @@
                 let reply;
                 if (data.reply) {
                     reply = `<div class="botMessage">${data.reply}</div>`;
-                } else if (typeof data === 'object' && !Array.isArray(data)) {
-                    reply = `<pre class="botMessage">${JSON.stringify(data, null, 2)}</pre>`;
-                } else {
-                    reply = `<div class="botMessage">${data.error || "Error desconocido"}</div>`;
+                } else if (data.error) {
+                    reply = `<div class="botMessage">${data.error}</div>`;
                 }
 
                 messages.innerHTML += `<div class="userMessage">${message}</div>`;
@@ -63,18 +61,16 @@
                 messages.scrollTop = messages.scrollHeight;
             } catch (error) {
                 console.error("Error al procesar la solicitud:", error);
+                alert("Ocurrió un error al enviar el mensaje. Intente nuevamente.");
             } finally {
-                // Restaurar texto del botón y ocultar el spinner
                 sendButton.disabled = false;
-                sendButton.innerHTML = "Enviar";
-                sendSpinner.style.display = "none";
+                sendButton.textContent = "Enviar";
             }
         }
 
         async function uploadPDF() {
             const pdfInput = document.getElementById('pdfInput');
             const uploadButton = document.getElementById('upload-button');
-            const uploadSpinner = document.getElementById('upload-spinner');
             const file = pdfInput.files[0];
 
             if (!file) {
@@ -82,28 +78,25 @@
                 return;
             }
 
-            const formData = new FormData();
-            formData.append('file', file);
-
-            // Mostrar el spinner y reemplazar el texto del botón
             uploadButton.disabled = true;
-            uploadButton.innerHTML = "";
-            uploadSpinner.style.display = "inline-block";
+            uploadButton.textContent = "Cargando...";
 
             try {
+                const formData = new FormData();
+                formData.append('file', file);
+
                 const response = await fetch('/api/upload', {
                     method: 'POST',
                     body: formData
                 });
+
                 const data = await response.json();
                 alert(data.message || data.error);
             } catch (error) {
                 console.error("Error al cargar el PDF:", error);
             } finally {
-                // Restaurar texto del botón y ocultar el spinner
                 uploadButton.disabled = false;
-                uploadButton.innerHTML = "Cargar PDF";
-                uploadSpinner.style.display = "none";
+                uploadButton.textContent = "Cargar PDF";
             }
         }
     </script>
