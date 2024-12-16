@@ -16,7 +16,8 @@ load_dotenv()
 # Configuración del modelo con mayor número de tokens
 llm = OpenAI(
     api_key=os.getenv('OPENAI_API_KEY'),
-    max_tokens=1000  # Aumentamos la longitud máxima de las respuestas
+    max_tokens=700  # Aumentamos la longitud máxima de las respuestas 
+    temperature=0.1
 )
 
 # Configuración del template del prompt (incluyendo System Prompt)
