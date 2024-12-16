@@ -13,17 +13,20 @@ from tempfile import NamedTemporaryFile  # Para manejo de archivos temporales
 # Cargar variables de entorno
 load_dotenv()
 
-# Configuración del modelo con mayor número de tokens y System Prompt
+# Configuración del modelo con mayor número de tokens
 llm = OpenAI(
     api_key=os.getenv('OPENAI_API_KEY'),
-    max_tokens=1000,  # Aumentamos la longitud máxima de las respuestas
-    system_prompt="Asesora los siguientes documentos PDF como un asistente especialista en conocimiento de documentación bancaria de 'Bantotal' trabajando para 'Simplificado'."
+    max_tokens=1000  # Aumentamos la longitud máxima de las respuestas
 )
 
-# Configuración del template del prompt
+# Configuración del template del prompt (incluyendo System Prompt)
+system_prompt = (
+    "Eres un asistente especializado en documentación bancaria de 'Bantotal', trabajando para 'Simplificado'. "
+    "Responde basándote en los documentos PDF proporcionados."
+)
 template = PromptTemplate(
     input_variables=["question", "context"],
-    template="Pregunta: {question}\nContexto: {context}\nRespuesta:"
+    template=f"{system_prompt}\n\nPregunta: {{question}}\nContexto: {{context}}\nRespuesta:"
 )
 
 # Crear la cadena de procesamiento usando RunnableSequence
