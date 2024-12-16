@@ -16,7 +16,7 @@ load_dotenv()
 # Configuración del modelo con mayor número de tokens y System Prompt
 llm = OpenAI(
     api_key=os.getenv('OPENAI_API_KEY'),
-    max_tokens=1000,  # Aumentamos la longitud máxima de las respuestas
+    max_tokens=500,  # Aumentamos la longitud máxima de las respuestas
     system_prompt="Asesora los siguientes documentos PDF como un asistente especialista en conocimiento de documentación bancaria de 'Bantotal' trabajando para 'Simplificado'."
 )
 
