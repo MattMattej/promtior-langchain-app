@@ -12,6 +12,7 @@
         <div id="upload-container">
             <input type="file" id="pdfInput" accept=".pdf">
             <button id="upload-button" onclick="uploadPDF()">Cargar PDF</button>
+            <div id="upload-spinner" class="spinner" style="display: none;"></div>
         </div>
 
         <!-- Columna derecha: chat -->
@@ -20,13 +21,20 @@
             <div id="controls">
                 <button id="send-button" onclick="sendMessage()">Enviar</button>
                 <input type="text" id="input" placeholder="Escribe tu mensaje..." onkeydown="if (event.key === 'Enter') sendMessage()">
+                <div id="send-spinner" class="spinner" style="display: none;"></div>
             </div>
         </div>
     </div>
     <script>
         async function sendMessage() {
             const input = document.getElementById('input');
+            const sendButton = document.getElementById('send-button');
+            const sendSpinner = document.getElementById('send-spinner');
             const message = input.value;
+
+            // Mostrar el spinner y deshabilitar el botón
+            sendButton.disabled = true;
+            sendSpinner.style.display = "inline-block";
 
             try {
                 const response = await fetch('/api/chat', {
@@ -38,12 +46,14 @@
                 const data = await response.json();
                 const messages = document.getElementById('messages');
 
-                // Verificar si la respuesta es JSON y formatearla
+                // Manejo de respuestas estándar y en JSON
                 let reply;
-                if (typeof data === 'object' && !Array.isArray(data)) {
+                if (data.reply) {
+                    reply = `<div class="botMessage">${data.reply}</div>`;
+                } else if (typeof data === 'object' && !Array.isArray(data)) {
                     reply = `<pre class="botMessage">${JSON.stringify(data, null, 2)}</pre>`;
                 } else {
-                    reply = `<div class="botMessage">${data.reply || data.error}</div>`;
+                    reply = `<div class="botMessage">${data.error || "Error desconocido"}</div>`;
                 }
 
                 messages.innerHTML += `<div class="userMessage">${message}</div>`;
@@ -53,12 +63,19 @@
                 messages.scrollTop = messages.scrollHeight;  // Mantener el scroll al final
             } catch (error) {
                 console.error("Error al procesar la solicitud:", error);
+            } finally {
+                // Ocultar el spinner y habilitar el botón
+                sendButton.disabled = false;
+                sendSpinner.style.display = "none";
             }
         }
 
         async function uploadPDF() {
             const pdfInput = document.getElementById('pdfInput');
+            const uploadButton = document.getElementById('upload-button');
+            const uploadSpinner = document.getElementById('upload-spinner');
             const file = pdfInput.files[0];
+
             if (!file) {
                 alert("Por favor selecciona un archivo PDF");
                 return;
@@ -67,14 +84,24 @@
             const formData = new FormData();
             formData.append('file', file);
 
-            console.log("Cargando archivo PDF..."); // Console log
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData
-            });
-            const data = await response.json();
-            console.log(data.message || data.error); // Console log
-            alert(data.message || data.error);
+            // Mostrar el spinner y deshabilitar el botón
+            uploadButton.disabled = true;
+            uploadSpinner.style.display = "inline-block";
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                alert(data.message || data.error);
+            } catch (error) {
+                console.error("Error al cargar el PDF:", error);
+            } finally {
+                // Ocultar el spinner y habilitar el botón
+                uploadButton.disabled = false;
+                uploadSpinner.style.display = "none";
+            }
         }
     </script>
 </body>

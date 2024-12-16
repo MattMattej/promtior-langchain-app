@@ -68,22 +68,30 @@ def chat():
     
     data = request.get_json()
     question = data.get('message', '')
-    
+
     # Recuperar documentos relevantes
     context_docs = vector_store.similarity_search(question, k=2)
-    context = "\n\n".join([f"{doc.page_content} (Fuente: {doc.metadata.get('source', 'PDF')})" for doc in context_docs])
+    context_list = [
+        {"content": doc.page_content, "source": doc.metadata.get('source', 'PDF')}
+        for doc in context_docs
+    ]
+    context_text = "\n\n".join([f"{doc['content']} (Fuente: {doc['source']})" for doc in context_list])
     
     # Generar la respuesta usando la cadena de procesamiento
-    response = chain.invoke({"question": question, "context": context})
+    response = chain.invoke({"question": question, "context": context_text})
 
     # Verificar si el usuario solicitó respuesta en JSON
     if "json" in question.lower():
         try:
-            structured_response = json.loads(response)  # Intentar estructurar como JSON
-            return jsonify(structured_response)  # Devolver como JSON
-        except json.JSONDecodeError:
-            return jsonify({"error": "La respuesta no puede estructurarse como JSON", "original_response": response}), 400
+            structured_response = {
+                "Contexto": context_list,  # Lista de documentos relevantes
+                "Respuesta": response
+            }
+            return jsonify(structured_response), 200  # Devolver como JSON correctamente indentado
+        except Exception as e:
+            return jsonify({"error": f"No se pudo estructurar la respuesta como JSON: {str(e)}"}), 500
 
+    # Respuesta estándar en formato texto
     print("Pregunta procesada con éxito.")  # Console log
     return jsonify({"reply": response})
 
