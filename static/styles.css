@@ -154,6 +154,7 @@ button:active {
     border-top: 2px solid #4a90e2;
     border-radius: 50%;
     animation: spin 1s linear infinite;
+    display: inline-block;
 }
 
 @keyframes spin {

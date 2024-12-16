@@ -13,8 +13,12 @@ from tempfile import NamedTemporaryFile  # Para manejo de archivos temporales
 # Cargar variables de entorno
 load_dotenv()
 
-# Configuración del modelo
-llm = OpenAI(api_key=os.getenv('OPENAI_API_KEY'), max_tokens=500)  # Respuestas más extensas
+# Configuración del modelo con mayor número de tokens y System Prompt
+llm = OpenAI(
+    api_key=os.getenv('OPENAI_API_KEY'),
+    max_tokens=1000,  # Aumentamos la longitud máxima de las respuestas
+    system_prompt="Asesora los siguientes documentos PDF como un asistente especialista en conocimiento de documentación bancaria de 'Bantotal' trabajando para 'Simplificado'."
+)
 
 # Configuración del template del prompt
 template = PromptTemplate(

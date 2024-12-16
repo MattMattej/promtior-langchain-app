@@ -32,8 +32,9 @@
             const sendSpinner = document.getElementById('send-spinner');
             const message = input.value;
 
-            // Mostrar el spinner y deshabilitar el botón
+            // Mostrar el spinner y reemplazar el texto del botón
             sendButton.disabled = true;
+            sendButton.innerHTML = "";  // Vaciar texto del botón
             sendSpinner.style.display = "inline-block";
 
             try {
@@ -46,7 +47,6 @@
                 const data = await response.json();
                 const messages = document.getElementById('messages');
 
-                // Manejo de respuestas estándar y en JSON
                 let reply;
                 if (data.reply) {
                     reply = `<div class="botMessage">${data.reply}</div>`;
@@ -60,12 +60,13 @@
                 messages.innerHTML += reply;
 
                 input.value = '';
-                messages.scrollTop = messages.scrollHeight;  // Mantener el scroll al final
+                messages.scrollTop = messages.scrollHeight;
             } catch (error) {
                 console.error("Error al procesar la solicitud:", error);
             } finally {
-                // Ocultar el spinner y habilitar el botón
+                // Restaurar texto del botón y ocultar el spinner
                 sendButton.disabled = false;
+                sendButton.innerHTML = "Enviar";
                 sendSpinner.style.display = "none";
             }
         }
@@ -84,8 +85,9 @@
             const formData = new FormData();
             formData.append('file', file);
 
-            // Mostrar el spinner y deshabilitar el botón
+            // Mostrar el spinner y reemplazar el texto del botón
             uploadButton.disabled = true;
+            uploadButton.innerHTML = "";
             uploadSpinner.style.display = "inline-block";
 
             try {
@@ -98,8 +100,9 @@
             } catch (error) {
                 console.error("Error al cargar el PDF:", error);
             } finally {
-                // Ocultar el spinner y habilitar el botón
+                // Restaurar texto del botón y ocultar el spinner
                 uploadButton.disabled = false;
+                uploadButton.innerHTML = "Cargar PDF";
                 uploadSpinner.style.display = "none";
             }
         }
