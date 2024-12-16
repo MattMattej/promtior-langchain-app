@@ -27,16 +27,33 @@
         async function sendMessage() {
             const input = document.getElementById('input');
             const message = input.value;
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message })
-            });
-            const data = await response.json();
-            const messages = document.getElementById('messages');
-            messages.innerHTML += `<div class="userMessage">${message}</div>`;
-            messages.innerHTML += `<div class="botMessage">${data.reply || data.error}</div>`;
-            input.value = '';
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await response.json();
+                const messages = document.getElementById('messages');
+
+                // Verificar si la respuesta es JSON y formatearla
+                let reply;
+                if (typeof data === 'object' && !Array.isArray(data)) {
+                    reply = `<pre class="botMessage">${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    reply = `<div class="botMessage">${data.reply || data.error}</div>`;
+                }
+
+                messages.innerHTML += `<div class="userMessage">${message}</div>`;
+                messages.innerHTML += reply;
+
+                input.value = '';
+                messages.scrollTop = messages.scrollHeight;  // Mantener el scroll al final
+            } catch (error) {
+                console.error("Error al procesar la solicitud:", error);
+            }
         }
 
         async function uploadPDF() {

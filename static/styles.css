@@ -86,14 +86,17 @@ body {
 /* Burbujas de mensajes del bot */
 .botMessage {
     text-align: left;
-    background-color: #d6d6d6; /* Gris un poco más oscuro */
+    background-color: #f0f0f0; /* Fondo más claro */
     color: #333333; /* Texto gris oscuro */
-    padding: 10px;
-    margin: 10px;
+    padding: 15px;
+    margin: 10px 0; /* Espaciado vertical más elegante */
     border-radius: 10px;
     align-self: flex-start;
-    max-width: 75%;
-    font-size: 15px;
+    max-width: 80%;
+    font-size: 16px;
+    line-height: 1.6; /* Espaciado entre líneas */
+    white-space: pre-wrap; /* Permitir saltos de línea */
+    word-wrap: break-word; /* Manejar palabras largas */
 }
 
 /* Controles (input + botón) */

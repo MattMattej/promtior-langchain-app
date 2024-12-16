@@ -14,7 +14,7 @@ from tempfile import NamedTemporaryFile  # Para manejo de archivos temporales
 load_dotenv()
 
 # Configuración del modelo
-llm = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+llm = OpenAI(api_key=os.getenv('OPENAI_API_KEY'), max_tokens=500)  # Respuestas más extensas
 
 # Configuración del template del prompt
 template = PromptTemplate(
@@ -75,6 +75,15 @@ def chat():
     
     # Generar la respuesta usando la cadena de procesamiento
     response = chain.invoke({"question": question, "context": context})
+
+    # Verificar si el usuario solicitó respuesta en JSON
+    if "json" in question.lower():
+        try:
+            structured_response = json.loads(response)  # Intentar estructurar como JSON
+            return jsonify(structured_response)  # Devolver como JSON
+        except json.JSONDecodeError:
+            return jsonify({"error": "La respuesta no puede estructurarse como JSON", "original_response": response}), 400
+
     print("Pregunta procesada con éxito.")  # Console log
     return jsonify({"reply": response})
 
