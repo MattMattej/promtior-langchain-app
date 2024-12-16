@@ -47,15 +47,24 @@
                 const data = await response.json();
                 const messages = document.getElementById('messages');
 
-                let reply;
+                let replyContent;
                 if (data.reply) {
-                    reply = `<div class="botMessage">${data.reply}</div>`;
+                    replyContent = `<div class="botMessage">${data.reply}</div>`;
+                } else if (data.Contexto && data.Respuesta) {
+                    replyContent = `
+                        <div class="botMessage">
+                            <strong>Respuesta JSON:</strong>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
                 } else if (data.error) {
-                    reply = `<div class="botMessage">${data.error}</div>`;
+                    replyContent = `<div class="botMessage">${data.error}</div>`;
+                } else {
+                    replyContent = `<div class="botMessage">Respuesta no reconocida</div>`;
                 }
 
                 messages.innerHTML += `<div class="userMessage">${message}</div>`;
-                messages.innerHTML += reply;
+                messages.innerHTML += replyContent;
 
                 input.value = '';
                 messages.scrollTop = messages.scrollHeight;

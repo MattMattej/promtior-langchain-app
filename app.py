@@ -8,15 +8,15 @@ from langchain.prompts import PromptTemplate
 from langchain_community.vectorstores import FAISS
 from langchain_community.document_loaders import PyPDFLoader
 from dotenv import load_dotenv
-from tempfile import NamedTemporaryFile  # Para manejo de archivos temporales
+from tempfile import NamedTemporaryFile
 
 # Cargar variables de entorno
 load_dotenv()
 
-# Configuración del modelo con mayor número de tokens
+# Configuración del modelo
 llm = OpenAI(
     api_key=os.getenv('OPENAI_API_KEY'),
-    max_tokens=700  # Aumentamos la longitud máxima de las respuestas 
+    max_tokens=1000,
     temperature=0.1
 )
 
@@ -35,7 +35,7 @@ chain = RunnableSequence(template | llm)
 
 # Crear el índice vectorial vacío
 embeddings = OpenAIEmbeddings()
-vector_store = None  # Se inicializa vacío
+vector_store = None
 
 # Inicializar la app Flask
 app = Flask(__name__)
@@ -52,7 +52,6 @@ def upload_pdf():
     file = request.files['file']
     if file and file.filename.endswith('.pdf'):
         try:
-            # Guardar archivo temporalmente
             with NamedTemporaryFile(delete=True, suffix=".pdf") as temp_file:
                 file.save(temp_file.name)
 
@@ -63,7 +62,6 @@ def upload_pdf():
                 # Crear índice vectorial
                 vector_store = FAISS.from_documents(documents, embeddings)
 
-                print("PDF cargado y procesado con éxito.")  # Console log
                 return jsonify({"message": "PDF cargado y procesado con éxito"})
         except Exception as e:
             return jsonify({"error": f"Ocurrió un error al procesar el PDF: {str(e)}"}), 500
@@ -76,15 +74,14 @@ def chat():
     global vector_store
     if vector_store is None:
         return jsonify({"error": "Primero sube un PDF para poder realizar preguntas"}), 400
-    
+
     data = request.get_json()
     if not data or "message" not in data or not data["message"].strip():
         return jsonify({"error": "Por favor, proporcione un mensaje válido."}), 400
 
-    question = data["message"]
+    question = data["message"].strip()
 
     try:
-        # Recuperar documentos relevantes
         context_docs = vector_store.similarity_search(question, k=2)
         context_list = [
             {"content": doc.page_content, "source": doc.metadata.get('source', 'PDF')}
@@ -92,11 +89,10 @@ def chat():
         ]
         context_text = "\n\n".join([f"{doc['content']} (Fuente: {doc['source']})" for doc in context_list])
 
-        # Generar la respuesta usando la cadena de procesamiento
         response = chain.invoke({"question": question, "context": context_text})
 
         # Verificar si el usuario solicitó respuesta en JSON
-        if "json" in question.lower():
+        if any(keyword in question.lower() for keyword in ["json", ".json"]):
             structured_response = {
                 "Contexto": context_list,
                 "Respuesta": response
@@ -109,7 +105,6 @@ def chat():
 
 @app.errorhandler(Exception)
 def handle_exception(e):
-    """Manejo global de excepciones"""
     response = {
         "error": str(e),
         "message": "Ha ocurrido un error en el servidor. Por favor, intente nuevamente."
