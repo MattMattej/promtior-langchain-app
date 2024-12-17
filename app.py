@@ -16,8 +16,7 @@ load_dotenv()
 # Configuración del modelo
 llm = OpenAI(
     api_key=os.getenv('OPENAI_API_KEY'),
-    max_tokens=1000,
-    temperature=0.1
+    max_tokens=400,
 )
 
 # Configuración del template del prompt (incluyendo System Prompt)
